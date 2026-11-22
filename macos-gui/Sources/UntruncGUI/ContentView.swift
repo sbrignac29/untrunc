@@ -8,7 +8,7 @@ struct ContentView: View {
     @State private var options = UntruncOptions()
     @State private var logScrollProxy: ScrollViewProxy? = nil
 
-    private let videoTypes = ["mp4", "m4v", "mov", "3gp", "MP4", "M4V", "MOV", "3GP"]
+    private let videoTypes = ["mp4", "m4v", "mov", "3gp", "MP4", "M4V", "MOV", "3GP", "mxf", "MXF"]
 
     var canRun: Bool {
         referenceFile != nil && corruptFile != nil && !runner.isRunning
@@ -32,6 +32,10 @@ struct ContentView: View {
         }
         .frame(minWidth: 800, minHeight: 520)
         .background(Color(NSColor.windowBackgroundColor))
+        .onChange(of: corruptFile) { newFile in
+            // Auto-enable MXF mode when an .mxf file is chosen
+            if newFile?.pathExtension.lowercased() == "mxf" { options.mxfRepair = true }
+        }
     }
 
     // MARK: - Header
@@ -46,7 +50,7 @@ struct ContentView: View {
                     Text("Untrunc")
                         .font(.title2)
                         .fontWeight(.bold)
-                    Text("Restore truncated MP4/MOV video files")
+                    Text("Restore truncated MP4/MOV/MXF video files")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -96,6 +100,11 @@ struct ContentView: View {
             }
             .pickerStyle(.menu)
 
+            Toggle("MXF repair mode (-mxf)", isOn: $options.mxfRepair)
+                .toggleStyle(.checkbox)
+                .font(.callout)
+                .help("Repair an MXF file's metadata using a known-good MXF reference clip with the same codec and format")
+
             Group {
                 Toggle("Step through unknown sequences (-s)", isOn: $options.stepUnknown)
                 Toggle("Stretch video to match audio (-sv)", isOn: $options.stretchVideo)
@@ -105,6 +114,7 @@ struct ContentView: View {
             }
             .toggleStyle(.checkbox)
             .font(.callout)
+            .disabled(options.mxfRepair)
         }
     }
 

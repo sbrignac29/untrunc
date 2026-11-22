@@ -333,6 +333,9 @@ void remux(const string& input, const string& output, const char* muxer) {
 		}
 		dst->codecpar->codec_tag = 0;
 		dst->time_base = src->time_base;
+		// Newer FFmpeg MXF muxers derive the edit rate from the stream frame rate.
+		dst->avg_frame_rate = src->avg_frame_rate;
+		dst->r_frame_rate = src->r_frame_rate;
 		av_dict_copy(&dst->metadata, src->metadata, 0);
 	}
 	if (!(out->oformat->flags & AVFMT_NOFILE)) {

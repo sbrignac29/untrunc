@@ -38,23 +38,31 @@ class UntruncRunner: ObservableObject {
         default: break
         }
 
-        if options.stepUnknown       { args.append("-s") }
-        if options.stretchVideo      { args.append("-sv") }
-        if options.keepUnknown       { args.append("-k") }
-        if options.skipOutput        { args.append("-dw") }
-        if options.makeStreamable    { args.append("-ms") }
+        // Predict output filename
+        let ext = corruptFile.pathExtension
+        let base = corruptFile.deletingPathExtension().lastPathComponent
+        let outputName = "\(base)_fixed.\(ext)"
+        let outputURL = corruptFile.deletingLastPathComponent().appendingPathComponent(outputName)
+
+        if options.mxfRepair {
+            // MXF mode ignores the MP4-specific flags. Pass -dst explicitly so the
+            // output is "<name>_fixed.mxf" rather than "<name>.mxf_fixed.mxf".
+            args.append("-mxf")
+            args.append("-dst")
+            args.append(outputURL.path)
+        } else {
+            if options.stepUnknown       { args.append("-s") }
+            if options.stretchVideo      { args.append("-sv") }
+            if options.keepUnknown       { args.append("-k") }
+            if options.skipOutput        { args.append("-dw") }
+            if options.makeStreamable    { args.append("-ms") }
+        }
         if options.noInteractive     { args.append("-n") }
 
         args.append(referenceFile.path)
         args.append(corruptFile.path)
 
         appendLog("▶ Running untrunc \(args.joined(separator: " "))\n")
-
-        // Predict output filename
-        let ext = corruptFile.pathExtension
-        let base = corruptFile.deletingPathExtension().lastPathComponent
-        let outputName = "\(base)_fixed.\(ext)"
-        let outputURL = corruptFile.deletingLastPathComponent().appendingPathComponent(outputName)
 
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             guard let self else { return }
@@ -146,4 +154,5 @@ struct UntruncOptions {
     var skipOutput: Bool = false
     var makeStreamable: Bool = false
     var noInteractive: Bool = true
+    var mxfRepair: Bool = false
 }
