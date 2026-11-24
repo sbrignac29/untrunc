@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:untrunc}/macos-gui",
+            "name": "Debug UntruncGUI (macos-gui)",
+            "target": "UntruncGUI",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug UntruncGUI (macos-gui)"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:untrunc}/macos-gui",
+            "name": "Release UntruncGUI (macos-gui)",
+            "target": "UntruncGUI",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release UntruncGUI (macos-gui)"
+        }
+    ]
+}

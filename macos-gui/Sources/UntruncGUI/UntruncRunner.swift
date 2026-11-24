@@ -44,12 +44,16 @@ class UntruncRunner: ObservableObject {
         let outputName = "\(base)_fixed.\(ext)"
         let outputURL = corruptFile.deletingLastPathComponent().appendingPathComponent(outputName)
 
-        if options.mxfRepair {
-            // MXF mode ignores the MP4-specific flags. Pass -dst explicitly so the
-            // output is "<name>_fixed.mxf" rather than "<name>.mxf_fixed.mxf".
-            args.append("-mxf")
+        // Always pass -dst so the output lands exactly where we look for it.
+        // Without it the CLI names the output "<name>.<ext>_fixed.<ext>".
+        if !(options.skipOutput && !options.mxfRepair) {
             args.append("-dst")
             args.append(outputURL.path)
+        }
+
+        if options.mxfRepair {
+            // MXF mode ignores the MP4-specific flags.
+            args.append("-mxf")
         } else {
             if options.stepUnknown       { args.append("-s") }
             if options.stretchVideo      { args.append("-sv") }

@@ -385,6 +385,12 @@ void remux(const string& input, const string& output, const char* muxer) {
 } // namespace
 
 void MxfRepair::repair(const string& reference, const string& damaged, const string& destination) {
+	// Essence inside the Header Partition (e.g. Canon XF-AVC) needs the native
+	// rebuild; decide before the full-file partition scan below.
+	if (isSinglePartition(reference)) {
+		rebuildSinglePartition(reference, damaged, destination);
+		return;
+	}
 	Scan gs = scan(reference), ds = scan(damaged);
 	const auto& gh = first(gs.parts, 2, "reference header");
 	const auto& gb = first(gs.parts, 3, "reference body");
